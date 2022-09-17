@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrew's First DApp</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: skyblue;
+        }
+        div {
+            width: 20%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background-color: pink;
+            padding: 5px;
+        }
+        button {
+            color: white;
+            background-color: blueviolet;
+            width: 100%;
+            margin: 10px 0px 5px 0px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>This is Andrew's DApp!</h1>
+        <p>Here we can set or get favorite Altcoin</p>
+        <label for="coin">Input Coin:</label> <br />
+        <input type="text" id="coin">
+        <button onclick="getCoin()">Get Coin</button>
+        <button onclick="setCoin()">Set Coin</button>
+    </div>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        const CoinContractAddress = "0x8d9b65fc4e1dF13BaFF4E95D5EFC5c17bedBFdb1";
+        const CoinContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_coin",
+				"type": "string"
+			}
+		],
+		"name": "setCoin",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getCoin",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+    let coinContract;
+    let signer;
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "ropsten");
+
+    provider.send("eth_requestAccounts", []).then(() =>{
+        provider.listAccounts().then((accounts) => {
+            signer = provider.getSigner(accounts[0]);
+            coinContract = new ethers.Contract(
+                CoinContractAddress,
+                CoinContractABI,
+                signer
+            );
+        });
+    });
+
+    async function getCoin() {
+        const getCoinPromise = coinContract.getCoin();
+        const coin = await getCoinPromise;
+        console.log(coin);
+    }
+
+    async function setCoin() {
+        const coin = document.getElementById("coin").value;
+        const setCoinPromise = coinContract.setCoin(coin);
+        await setCoinPromise; 
+    }
+    </script>
+</body>
+</html>
